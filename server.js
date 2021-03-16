@@ -32,15 +32,23 @@ let output = {
 }
 
 // timestamp endpoints:
+
+app.get("/api/timestamp/", function (req, res) {
+	output.utc = new Date().toUTCString();
+	output.unix = new Date(output.utc).getTime();
+	res.json(output);
+});
+
 app.get("/api/timestamp/:time", function (req, res) {
 	let time = req.params.time
-	
 	if(time.length <= 10) {
-    output.utc = new Date(time).toUTCString();
-		output.unix = new Date(output.utc).getTime()
-	} else {
+		output.utc = new Date(time).toUTCString();
+		output.unix = new Date(output.utc).getTime();
+	} else if(time.length <= 13) {
 		output.unix = Number(time);
 		output.utc = new Date(output.unix).toUTCString();
+	} else {
+		res.json({ error : "Invalid Date" });
 	}
 	res.json(output);
 });
