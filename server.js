@@ -25,6 +25,26 @@ app.get("/api/hello", function (req, res) {
 });
 
 
+// Response output
+let output = {
+	unix: 0,
+	utc: ""
+}
+
+// timestamp endpoints:
+app.get("/api/timestamp/:time", function (req, res) {
+	let time = req.params.time
+	
+	if(time.length <= 10) {
+    output.utc = new Date(time).toUTCString();
+		output.unix = new Date(output.utc).getTime()
+	} else {
+		output.unix = Number(time);
+		output.utc = new Date(output.unix).toUTCString();
+	}
+	res.json(output);
+});
+
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
