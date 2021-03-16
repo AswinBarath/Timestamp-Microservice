@@ -33,24 +33,28 @@ let output = {
 
 // timestamp endpoints:
 
-app.get("/api/timestamp/", function (req, res) {
-	output.utc = new Date().toUTCString();
-	output.unix = new Date(output.utc).getTime();
-	res.json(output);
+app.get("/api/timestamp/", (req, res) => {
+  res.json({ unix: Date.now(), utc: Date() });
 });
 
-app.get("/api/timestamp/:time", function (req, res) {
-	let time = req.params.time
-	if(time.length <= 10) {
-		output.utc = new Date(time).toUTCString();
-		output.unix = new Date(output.utc).getTime();
-	} else if(time.length <= 13) {
-		output.unix = Number(time);
-		output.utc = new Date(output.unix).toUTCString();
-	} else {
-		res.json({ error : "Invalid Date" });
-	}
-	res.json(output);
+app.get("/api/timestamp/:date_string", (req, res) => {
+  let dateString = req.params.date_string;
+
+  //A 4 digit number is a valid ISO-8601 for the beginning of that year
+  //5 digits or more must be a unix time, until we reach a year 10,000 problem
+  if (/\d{5,}/.test(dateString)) {
+    const dateInt = parseInt(dateString);
+    //Date regards numbers as unix timestamps, strings are processed differently
+    res.json({ unix: dateInt, utc: new Date(dateInt).toUTCString() });
+  } else {
+    let dateObject = new Date(dateString);
+
+    if (dateObject.toString() === "Invalid Date") {
+      res.json({ error: "Invalid Date" });
+    } else {
+      res.json({ unix: dateObject.valueOf(), utc: dateObject.toUTCString() });
+    }
+  }
 });
 
 
